@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Get Started{% endblock %}
+
+{% block content %}
+  <section class="form-section">
+    <h2>Enter YouTube Video Link</h2>
+    <form method="POST" action="{{ url_for('get_started') }}">
+      <label for="youtube_link">YouTube Link:</label>
+      <input type="url" id="youtube_link" name="youtube_link" placeholder="https://www.youtube.com/watch?v=..." required>
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+{% endblock %}

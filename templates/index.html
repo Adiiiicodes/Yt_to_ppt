@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Landing Page{% endblock %}
+
+{% block content %}
+  <section class="landing">
+    <h1>Welcome to the YouTube to PPT Tool</h1>
+    <p>Convert any YouTube video into a presentation with a click of a button.</p>
+    <a class="button" href="{{ url_for('get_started') }}">Get Started</a>
+  </section>
+{% endblock %}
