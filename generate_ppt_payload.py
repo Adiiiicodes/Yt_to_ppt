@@ -25,7 +25,7 @@ def generate_ppt_payload(transcription):
             {
                 "role": "system",
                 "content": (
-                    "You are an assistant that converts a YouTube video transcription into a JSON payload for the PPTMaker API. "
+                    "You aree an assistant that converts a YouTube video transcription into a JSON payload for the PPTMaker API. "
                     "The PPTMaker API expects a JSON object with a 'presentation' key. The 'presentation' object must contain: "
                     "'template' (set to 'slides_as_template.pptx'), 'export_version' (set to 'Pptx2010'), and 'slides'. "
                     "The 'slides' key should be an array of slide objects. Each slide object must include 'type' (which should be 'slide'), "
