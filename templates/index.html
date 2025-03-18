@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduRecap - Video Summarization & Notes Generator</title>
+    <style>
+        :root {
+            --primary-light: rgba(255, 255, 255, 0.7);
+            --secondary-light: rgba(255, 255, 255, 0.4);
+            --text-light: #333;
+            --accent-light: #ff0000;
+            
+            --primary-dark: rgba(23, 25, 35, 0.7);
+            --secondary-dark: rgba(31, 34, 47, 0.4);
+            --text-dark: #fff;
+            --accent-dark: #ff4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            background: #f0f2f5;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        body.dark-theme {
+            background: #1a1a2e;
+            color: var(--text-dark);
+        }
+
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-light);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+            transition: all 0.2s ease;
+        }
+
+        .cursor-follower {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-light);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+            transition: all 0.15s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            font-size: 24px;
+            cursor: none;
+            z-index: 100;
+            padding: 15px;
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 
+                0 8px 32px 0 rgba(31, 38, 135, 0.37),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .landing {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            padding: 4rem;
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 
+                0 8px 32px 0 rgba(31, 38, 135, 0.2),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+            transform: translateY(50px);
+            opacity: 0;
+            animation: fadeUp 1s ease forwards;
+        }
+
+        .dark-theme .glass-card {
+            background: rgba(31, 34, 47, 0.8);
+            box-shadow: 
+                0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 1.2rem 2.5rem;
+            text-decoration: none;
+            color: #fff;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .doodle {
+            position: absolute;
+            opacity: 0.2;
+            z-index: -1;
+            transition: all 0.3s ease;
+        }
+
+        .dark-theme .doodle {
+            opacity: 0.15;
+        }
+
+        .doodle-1 {
+            top: 10%;
+            left: 5%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .doodle-2 {
+            bottom: 10%;
+            right: 5%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(0, -20px); }
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            p {
+                font-size: 1.1rem;
+            }
+
+            .glass-card {
+                padding: 2.5rem;
+            }
+        }
+
+        .background-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            filter: blur(60px);
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .dark-theme .shape {
+            opacity: 0.2;
+        }
+
+        .shape-1 {
+            background: #ff6b6b;
+            width: 500px;
+            height: 500px;
+            top: -250px;
+            left: -250px;
+            border-radius: 40% 60% 70% 30% / 30% 60% 40% 70%;
+        }
+
+        .shape-2 {
+            background: #4285f4;
+            width: 600px;
+            height: 600px;
+            bottom: -300px;
+            right: -300px;
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    
+    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+    
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <section class="landing">
+        <!-- Education/Video themed SVG Doodle -->
+        <svg class="doodle doodle-1" width="200" height="200" viewBox="0 0 200 200">
+            <path d="M40,100 Q100,40 160,100" fill="none" stroke="currentColor" stroke-width="4"/>
+            <circle cx="100" cy="100" r="30" stroke="currentColor" stroke-width="4" fill="none"/>
+            <polygon points="85,90 120,100 85,110" fill="currentColor"/>
+            <rect x="40" y="70" width="20" height="60" rx="10" stroke="currentColor" stroke-width="4" fill="none"/>
+            <rect x="140" y="70" width="20" height="60" rx="10" stroke="currentColor" stroke-width="4" fill="none"/>
+        </svg>
+        
+        <!-- Presentation/Document themed SVG Doodle -->
+        <svg class="doodle doodle-2" width="200" height="200" viewBox="0 0 200 200">
+            <rect x="50" y="30" width="100" height="140" rx="10" stroke="currentColor" stroke-width="4" fill="none"/>
+            <line x1="70" y1="60" x2="130" y2="60" stroke="currentColor" stroke-width="4"/>
+            <line x1="70" y1="90" x2="130" y2="90" stroke="currentColor" stroke-width="4"/>
+            <line x1="70" y1="120" x2="130" y2="120" stroke="currentColor" stroke-width="4"/>
+        </svg>
+
+        <div class="glass-card">
+            <h1>Welcome to EduRecap</h1>
+            <p>Transform your learning experience! Convert any YouTube video into a professional presentation with just a click. Save time, learn better, and share knowledge effortlessly.</p>
+            <a class="button" href="{{ url_for('get_started') }}" method="POST">Get Started</a>
+        </div>
+    </section>
+
+    <script>
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+        }
+
+        document.querySelector('.button').addEventListener('mouseenter', () => {
+            cursor.style.transform = 'scale(1.5)';
+            cursorFollower.style.transform = 'scale(1.5)';
+        });
+
+        document.querySelector('.button').addEventListener('mouseleave', () => {
+            cursor.style.transform = 'scale(1)';
+            cursorFollower.style.transform = 'scale(1)';
+        });
+    </script>
+</body>
+</html>
