@@ -3,8 +3,8 @@ import os
 
 # Import the functions from their individual files
 from process_transcription import process_transcription
-from generate_ppt_payload import generate_ppt_payload
-from call_ppt_maker_api import call_pptmaker_api
+from generate_ppt_payload import generate_ppt_content  # Function to get the structured content
+from gen_ppt import create_beautiful_pptx  # Function to create the PowerPoint
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Necessary for session storage
@@ -46,9 +46,13 @@ def generate_ppt():
     transcription = session.get("transcription")
     if not transcription:
         return "No transcription found. Please start over."
-    # Convert transcription to PPTMaker API payload using the Groq API
-    payload = generate_ppt_payload(transcription)
-    ppt_file = call_pptmaker_api(payload)
+    
+    # Step 1: Generate structured content for PowerPoint slides
+    ppt_content = generate_ppt_content(transcription)
+    
+    # Step 2: Create PowerPoint using the generated content
+    ppt_file = create_beautiful_pptx(ppt_content)
+    
     if ppt_file:
         # Store the generated file name in session (if needed)
         session['ppt_file'] = ppt_file
